@@ -44,14 +44,13 @@ import { Buffer } from "buffer/";
 import { useStore } from "vuex";
 import { fetchUserBalance } from "@/utils/repository";
 import { key } from "@/store";
-import { aptosClient, faucetClient } from "@/utils/client";
+import { faucetClient } from "@/utils/client";
 
 export default defineComponent({
   name: "AccountPage",
   setup() {
     let privateKey = ref("");
     const store = useStore(key);
-    const account = ref(null);
     const userBalance = ref(0);
 
     const createAccount = async () => {

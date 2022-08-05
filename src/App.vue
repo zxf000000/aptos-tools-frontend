@@ -2,10 +2,13 @@
   <v-app>
     <v-app-bar class="app-bar" app elevate-on-scroll>
       <v-app-bar-title> Aptos Tools </v-app-bar-title>
+      <v-spacer> </v-spacer>
+      <h6>address:: {{ address }}</h6>
     </v-app-bar>
     <v-navigation-drawer permanent v-model="showDrawer">
       <v-list>
         <v-list-item to="/account"> Account </v-list-item>
+        <v-list-item to="/module"> Module </v-list-item>
       </v-list>
     </v-navigation-drawer>
     <v-main>
@@ -24,11 +27,20 @@ export default defineComponent({
       showDrawer: true,
     };
   },
+  computed: {
+    address() {
+      if (this.$store.state.account) {
+        return this.$store.state.account.address().toString();
+      } else {
+        return "";
+      }
+    },
+  },
 });
 </script>
 
 <style lang="scss">
 .app-bar {
-  padding: 0 0 0 200px;
+  padding: 0 20px;
 }
 </style>
