@@ -18,10 +18,24 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, onMounted } from "vue";
+import { useStore } from "vuex";
+import { key } from "@/store";
+import { importAccount } from "@/utils/repository";
 
 export default defineComponent({
   name: "App",
+  setup() {
+    console.log(123);
+    const store = useStore(key);
+    const pkey = localStorage.getItem("pkey");
+    onMounted(async () => {
+      if (pkey) {
+        const account = await importAccount(pkey);
+        store.commit("updateAccount", account);
+      }
+    });
+  },
   data() {
     return {
       showDrawer: true,
