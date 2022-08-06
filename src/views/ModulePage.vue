@@ -36,6 +36,53 @@
         </a>
       </v-card-item>
     </v-card>
+    <v-card elevation="4" class="mt-6">
+      <v-card-title> Execute Function </v-card-title>
+      <v-card-text>
+        <v-text-field
+          label="Module name"
+          density="compact"
+          class="mt-6"
+          hide-details
+          v-model="moduleName"
+        ></v-text-field>
+        <v-text-field
+          density="compact"
+          hide-details
+          class="mt-6"
+          label="Function name"
+          v-model="funName"
+        >
+        </v-text-field>
+        <v-text-field
+          density="compact"
+          hide-details
+          class="mt-6"
+          label="Function args (split by `,`)"
+          v-model="funcArgs"
+        >
+        </v-text-field>
+        <v-btn
+          :loading="exeFuncLoading"
+          class="mt-6"
+          color="primary"
+          @click="executeFunc"
+        >
+          Execute
+        </v-btn>
+      </v-card-text>
+      <v-card-text>
+        <span>
+          Result:
+          <a
+            target="_blank"
+            :href="'https://explorer.devnet.aptos.dev/txn/' + funcRes"
+          >
+            {{ funcRes }}
+          </a>
+        </span>
+      </v-card-text>
+    </v-card>
   </v-container>
 </template>
 
@@ -45,7 +92,11 @@ import { useStore } from "vuex";
 import { key } from "@/store";
 import { AptosClient, HexString, TxnBuilderTypes } from "aptos";
 import { aptosClient } from "@/utils/client";
-import router from "@/router";
+import {
+  executeFunction,
+  fetchModules,
+  getSequenceNumberAndChainId,
+} from "@/utils/repository";
 
 export default defineComponent({
   name: "ModulePage",
@@ -58,27 +109,22 @@ export default defineComponent({
     if (store.state.account) {
       address.value = store.state.account.address().toString();
     } else {
-      router.push("/account");
+      // router.push("/account");
     }
 
     const publishModule = async (text: string) => {
       if (store.state.account) {
         const account = store.state.account;
-        console.log("text", text);
         const code = new HexString(text).toUint8Array();
-        console.log(code);
         const module = new TxnBuilderTypes.Module(code);
 
         const moduleBundlePayload =
           new TxnBuilderTypes.TransactionPayloadModuleBundle(
             new TxnBuilderTypes.ModuleBundle([module])
           );
-        const [{ sequence_number: sequenceNumber }, chainId] =
-          await Promise.all([
-            aptosClient.getAccount(account.address()),
-            aptosClient.getChainId(),
-          ]);
-
+        const { sequenceNumber, chainId } = await getSequenceNumberAndChainId(
+          account
+        );
         const rawTransaction = new TxnBuilderTypes.RawTransaction(
           TxnBuilderTypes.AccountAddress.fromHex(account.address()),
           BigInt(sequenceNumber),
@@ -106,7 +152,9 @@ export default defineComponent({
       console.log(buildFile.value);
       const fileReader = new FileReader();
       fileReader.addEventListener("load", (event) => {
-        let u = new Uint8Array(event.target.result as ArrayBuffer);
+        let u: Uint8Array | null = new Uint8Array(
+          event.target?.result as ArrayBuffer
+        );
         const a = new Array(u.length);
         let i = u.length;
         while (i--) {
@@ -122,13 +170,52 @@ export default defineComponent({
       }
     };
 
+    const moduleName = ref("");
+    const funName = ref("");
+    const funcArgs = ref("");
+    const funcRes = ref("");
+    const exeFuncLoading = ref(false);
+
+    const executeFunc = async () => {
+      if (!store.state.account) {
+        return;
+      }
+      exeFuncLoading.value = true;
+      const account = store.state.account;
+      const args = funcArgs.value.split(",");
+      const res = await executeFunction(
+        account,
+        moduleName.value,
+        funName.value,
+        args
+      );
+      exeFuncLoading.value = false;
+      funcRes.value = res.hash;
+    };
+
     return {
       buildFile,
       tapPublish,
       publishModule,
       loading,
       publishTxHex,
+      moduleName,
+      funName,
+      funcArgs,
+      executeFunc,
+      exeFuncLoading,
+      funcRes,
     };
+  },
+  computed: {
+    account() {
+      return this.$store.state.account;
+    },
+  },
+  watch: {
+    async account(newVal) {
+      await fetchModules(newVal);
+    },
   },
 });
 </script>
