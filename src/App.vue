@@ -32,6 +32,7 @@ export default defineComponent({
     onMounted(async () => {
       if (pkey) {
         const account = await importAccount(pkey);
+        console.log(pkey);
         store.commit("updateAccount", account);
       }
     });

@@ -1,4 +1,4 @@
-import { aptosClient, faucetClient } from "@/utils/client";
+import { aptosClient, faucetClient, NODE_URL } from "@/utils/client";
 import {
   AptosAccount,
   AptosClient,
@@ -8,6 +8,8 @@ import {
 } from "aptos";
 import { Buffer } from "buffer";
 import { bcsSerializeStr } from "aptos/dist/transaction_builder/bcs";
+import { AxiosHttpRequest } from "aptos/dist/generated/core/AxiosHttpRequest";
+import axios from "axios";
 
 export async function fetchUserBalance(address: MaybeHexString) {
   if (address) {
@@ -101,5 +103,17 @@ export async function executeFunction(
     new TxnBuilderTypes.ChainId(chainId)
   );
   const bcsTxn = AptosClient.generateBCSTransaction(account, rawTxn);
-  return await aptosClient.submitSignedBCSTransaction(bcsTxn);
+  const txRes = await aptosClient.submitSignedBCSTransaction(bcsTxn);
+  // await aptosClient.waitForTransaction(txRes.hash);
+  // console.log("complete");
+  setTimeout(() => {
+    const res = axios.request({
+      method: "GET",
+      url:
+        NODE_URL +
+        "/transactions/0xbbfdc3f7a8097690bc7c270a98da68c9fb21020d81f467fc8e96e4c371085ab3",
+    });
+    console.log(res);
+  }, 2000);
+  return txRes;
 }
