@@ -1,0 +1,11 @@
+[package]
+name = "my_space"
+version = "0.0.0"
+
+[dependencies]
+AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework/", rev = "devnet" }
+
+[addresses]
+my_address="0x0a88c5d4ccdf55fa3ff3726cb2f1f8ec60228821342c1d5356a2e12dc7744543"
+
+
