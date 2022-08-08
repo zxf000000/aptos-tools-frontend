@@ -18,7 +18,7 @@ export const store = createStore<State>({
     },
     clearAccount(state: State) {
       state.account = null;
-      localStorage.removeItem("pkkey");
+      localStorage.removeItem("pkey");
     },
   },
   actions: {},

@@ -34,6 +34,7 @@
         >
           <span>{{ publishTxHex }}</span>
         </a>
+        <vue-json-pretty :data="publishResult"></vue-json-pretty>
       </v-card-item>
     </v-card>
     <v-card elevation="4" class="mt-6">
@@ -91,21 +92,28 @@ import { defineComponent, Ref, ref } from "vue";
 import { useStore } from "vuex";
 import { key } from "@/store";
 import { AptosClient, HexString, TxnBuilderTypes } from "aptos";
-import { aptosClient } from "@/utils/client";
+import VueJsonPretty from "vue-json-pretty";
+import "vue-json-pretty/lib/styles.css";
+
 import {
   executeFunction,
+  executeTransactionWithPayload,
   fetchModules,
-  getSequenceNumberAndChainId,
 } from "@/utils/repository";
+import { Transaction } from "aptos/dist/generated";
 
 export default defineComponent({
   name: "ModulePage",
+  components: {
+    VueJsonPretty,
+  },
   setup() {
     const store = useStore(key);
     const address = ref("");
     const buildFile: Ref<FileList | Array<File>> = ref([]);
     const loading = ref(false);
     const publishTxHex = ref("");
+    const publishResult: Ref<Transaction | null> = ref(null);
     if (store.state.account) {
       address.value = store.state.account.address().toString();
     } else {
@@ -122,28 +130,13 @@ export default defineComponent({
           new TxnBuilderTypes.TransactionPayloadModuleBundle(
             new TxnBuilderTypes.ModuleBundle([module])
           );
-        const { sequenceNumber, chainId } = await getSequenceNumberAndChainId(
-          account
-        );
-        const rawTransaction = new TxnBuilderTypes.RawTransaction(
-          TxnBuilderTypes.AccountAddress.fromHex(account.address()),
-          BigInt(sequenceNumber),
-          moduleBundlePayload,
-          1000n,
-          1n,
-          BigInt(Math.floor(Date.now() / 1000) + 10),
-          new TxnBuilderTypes.ChainId(chainId)
-        );
-
-        console.log(rawTransaction);
-
-        const bcsTxn = AptosClient.generateBCSTransaction(
+        const res = await executeTransactionWithPayload(
           account,
-          rawTransaction
+          moduleBundlePayload
         );
-        const result = await aptosClient.submitSignedBCSTransaction(bcsTxn);
-        console.log(result);
-        publishTxHex.value = result.hash;
+        publishResult.value = res;
+        console.log(res);
+        publishTxHex.value = res.hash;
         loading.value = false;
       }
     };
@@ -205,6 +198,7 @@ export default defineComponent({
       executeFunc,
       exeFuncLoading,
       funcRes,
+      publishResult,
     };
   },
   computed: {
