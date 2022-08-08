@@ -2,14 +2,22 @@ import { aptosClient, faucetClient, NODE_URL } from "@/utils/client";
 import {
   AptosAccount,
   AptosClient,
+  HexString,
   MaybeHexString,
   TxnBuilderTypes,
-  Types,
 } from "aptos";
 import { Buffer } from "buffer";
-import { bcsSerializeStr } from "aptos/dist/transaction_builder/bcs";
-import { AxiosHttpRequest } from "aptos/dist/generated/core/AxiosHttpRequest";
+import {
+  bcsSerializeBool,
+  bcsSerializeStr,
+  bcsSerializeU8,
+  bcsSerializeUint64,
+  Serializer,
+} from "aptos/dist/transaction_builder/bcs";
 import axios from "axios";
+import { Transaction } from "aptos/dist/generated";
+import { Transition } from "vue";
+import { StructTag } from "aptos/dist/transaction_builder/aptos_types";
 
 export async function fetchUserBalance(address: MaybeHexString) {
   if (address) {
@@ -55,6 +63,42 @@ export async function getSequenceNumberAndChainId(account: AptosAccount) {
   };
 }
 
+export async function initializeCoin(
+  account: AptosAccount,
+  coinAddress: MaybeHexString,
+  coinModuleName: string,
+  coinStructName: string,
+  coinName: string,
+  coinSymbol: string
+): Promise<Transaction> {
+  const typeTag = new TxnBuilderTypes.TypeTagStruct(
+    TxnBuilderTypes.StructTag.fromString(
+      `${(
+        coinAddress as HexString
+      ).hex()}::${coinModuleName}::${coinStructName}`
+    )
+  );
+
+  console.log(typeTag);
+  const serializer = new Serializer();
+  serializer.serializeBool(false);
+  const scriptFunc = TxnBuilderTypes.ScriptFunction.natural(
+    "0x1::managed_coin",
+    "initialize",
+    [typeTag],
+    [
+      bcsSerializeStr(coinName),
+      bcsSerializeStr(coinSymbol),
+      bcsSerializeUint64(6),
+      serializer.getBytes(),
+    ]
+  );
+  const payload = new TxnBuilderTypes.TransactionPayloadScriptFunction(
+    scriptFunc
+  );
+  return await executeTransactionWithPayload(account, payload);
+}
+
 export async function fetchModules(account: AptosAccount) {
   const res = await aptosClient.getAccountModules(account.address());
   const data = {
@@ -76,7 +120,7 @@ export async function executeFunction(
   moduleName: string,
   funName: string,
   params: string[]
-) {
+): Promise<Transaction> {
   const args = params.map((arg) => {
     return bcsSerializeStr(arg);
   });
@@ -89,31 +133,66 @@ export async function executeFunction(
         args
       )
     );
-  const { sequenceNumber, chainId } = await getSequenceNumberAndChainId(
-    account
-  );
+  return executeTransactionWithPayload(account, scriptFunctionPayload);
+  // const { sequenceNumber, chainId } = await getSequenceNumberAndChainId(
+  //   account
+  // );
+  //
+  // const rawTxn = new TxnBuilderTypes.RawTransaction(
+  //   TxnBuilderTypes.AccountAddress.fromHex(account.address()),
+  //   BigInt(sequenceNumber),
+  //   scriptFunctionPayload,
+  //   1000n,
+  //   1n,
+  //   BigInt(Math.floor(Date.now() / 1000) + 10),
+  //   new TxnBuilderTypes.ChainId(chainId)
+  // );
+  // const bcsTxn = AptosClient.generateBCSTransaction(account, rawTxn);
+  // const txRes = await aptosClient.submitSignedBCSTransaction(bcsTxn);
+  // // await aptosClient.waitForTransaction(txRes.hash);
+  // // console.log("complete");
+  // setTimeout(() => {
+  //   const res = axios.request({
+  //     method: "GET",
+  //     url:
+  //       NODE_URL +
+  //       "/transactions/0xbbfdc3f7a8097690bc7c270a98da68c9fb21020d81f467fc8e96e4c371085ab3",
+  //   });
+  //   console.log(res);
+  // }, 2000);
+  // return txRes;
+}
 
+export async function executeTransactionWithPayload(
+  accountFrom: AptosAccount,
+  payload: any
+): Promise<Transaction> {
+  const { sequenceNumber, chainId } = await getSequenceNumberAndChainId(
+    accountFrom
+  );
   const rawTxn = new TxnBuilderTypes.RawTransaction(
-    TxnBuilderTypes.AccountAddress.fromHex(account.address()),
+    TxnBuilderTypes.AccountAddress.fromHex(accountFrom.address()),
     BigInt(sequenceNumber),
-    scriptFunctionPayload,
+    payload,
     1000n,
     1n,
     BigInt(Math.floor(Date.now() / 1000) + 10),
     new TxnBuilderTypes.ChainId(chainId)
   );
-  const bcsTxn = AptosClient.generateBCSTransaction(account, rawTxn);
+  const bcsTxn = AptosClient.generateBCSTransaction(accountFrom, rawTxn);
   const txRes = await aptosClient.submitSignedBCSTransaction(bcsTxn);
   // await aptosClient.waitForTransaction(txRes.hash);
   // console.log("complete");
-  setTimeout(() => {
-    const res = axios.request({
-      method: "GET",
-      url:
-        NODE_URL +
-        "/transactions/0xbbfdc3f7a8097690bc7c270a98da68c9fb21020d81f467fc8e96e4c371085ab3",
-    });
-    console.log(res);
-  }, 2000);
-  return txRes;
+  return await new Promise((resolve) => {
+    setTimeout(() => {
+      axios
+        .request({
+          method: "GET",
+          url: NODE_URL + "/transactions/" + txRes.hash,
+        })
+        .then((res) => {
+          resolve(res.data as Transaction);
+        });
+    }, 2000);
+  });
 }

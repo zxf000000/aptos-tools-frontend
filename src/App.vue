@@ -9,6 +9,7 @@
       <v-list>
         <v-list-item to="/account"> Account </v-list-item>
         <v-list-item to="/module"> Module </v-list-item>
+        <v-list-item to="/coin"> Coin </v-list-item>
       </v-list>
     </v-navigation-drawer>
     <v-main>
