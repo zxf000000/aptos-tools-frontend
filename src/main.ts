@@ -4,6 +4,7 @@ import router from "./router";
 import { store, key } from "./store";
 import vuetify from "./plugins/vuetify";
 import { loadFonts } from "./plugins/webfontloader";
+import "@/permission";
 
 loadFonts();
 

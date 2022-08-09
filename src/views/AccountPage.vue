@@ -1,5 +1,8 @@
 <template>
-  <v-container fluid class="d-flex flex-column align-start">
+  <v-container
+    fluid
+    class="d-flex flex-column align-center justify-center account-container"
+  >
     <h2>Account</h2>
     <v-sheet v-if="account" class="d-flex flex-column align-start pa-4">
       <h4 class="mt-6">Current Address</h4>
@@ -45,6 +48,7 @@ import { useStore } from "vuex";
 import { fetchUserBalance } from "@/utils/repository";
 import { key } from "@/store";
 import { faucetClient } from "@/utils/client";
+import { useRoute, useRouter } from "vue-router";
 
 export default defineComponent({
   name: "AccountPage",
@@ -52,6 +56,8 @@ export default defineComponent({
     let privateKey = ref("");
     const store = useStore(key);
     const userBalance = ref(0);
+    const router = useRouter();
+    const route = useRoute();
 
     const createAccount = async () => {
       const account = new AptosAccount();
@@ -59,6 +65,7 @@ export default defineComponent({
       await faucetClient.fundAccount(account.address(), 0);
       store.commit("updateAccount", account);
       await getUserBalance(account.address().toString());
+      accountGenerated();
     };
 
     const importAccount = async () => {
@@ -71,6 +78,14 @@ export default defineComponent({
       await faucetClient.fundAccount(account.address(), 0);
       store.commit("updateAccount", account);
       await getUserBalance(account.address().toString());
+      accountGenerated();
+    };
+
+    const accountGenerated = () => {
+      const redirect = route.query["redirect"];
+      if (redirect) {
+        router.push(`${redirect}`);
+      }
     };
 
     const clear = () => {
@@ -133,4 +148,8 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.account-container {
+  height: calc(100vh - 64px);
+}
+</style>
