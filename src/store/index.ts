@@ -1,6 +1,7 @@
 import { createStore, Store } from "vuex";
 import { InjectionKey } from "vue";
 import { AptosAccount } from "aptos";
+import router from "@/router";
 
 export interface State {
   account: AptosAccount | null;
@@ -19,6 +20,7 @@ export const store = createStore<State>({
     clearAccount(state: State) {
       state.account = null;
       localStorage.removeItem("pkey");
+      router.push("/account");
     },
   },
   actions: {},
