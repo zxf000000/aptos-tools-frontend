@@ -12,6 +12,7 @@
     </v-app-bar>
     <v-navigation-drawer permanent v-model="showDrawer">
       <v-list>
+        <v-list-item to="/fund"> Fund </v-list-item>
         <v-list-item to="/module"> Module </v-list-item>
         <v-list-item to="/coin"> Coin </v-list-item>
       </v-list>

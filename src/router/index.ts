@@ -4,6 +4,7 @@ import AccountPage from "@/views/AccountPage.vue";
 import ModulePage from "@/views/ModulePage.vue";
 import CoinPage from "@/views/CoinPage.vue";
 import { store } from "@/store";
+import AccountFund from "@/views/AccountFund.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -20,6 +21,11 @@ const routes: Array<RouteRecordRaw> = [
         path: "coin",
         name: "CoinPage",
         component: CoinPage,
+      },
+      {
+        path: "fund",
+        name: "FundPage",
+        component: AccountFund,
       },
     ],
   },
