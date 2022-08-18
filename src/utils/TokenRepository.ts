@@ -1,4 +1,4 @@
-import { AptosAccount, TxnBuilderTypes } from "aptos";
+import { AptosAccount, MaybeHexString, TxnBuilderTypes } from "aptos";
 import {
   bcsSerializeStr,
   bcsSerializeUint64,
@@ -6,6 +6,7 @@ import {
   Serializer,
 } from "aptos/dist/transaction_builder/bcs";
 import { executeTransactionWithPayload } from "@/utils/repository";
+import { aptosClient, tokenClient } from "@/utils/client";
 
 function serializeVectorBool(vecBool: boolean[]) {
   const serializer = new Serializer();
@@ -14,6 +15,39 @@ function serializeVectorBool(vecBool: boolean[]) {
     serializer.serializeBool(el);
   });
   return serializer.getBytes();
+}
+
+export async function fetchToken(
+  address: MaybeHexString,
+  collection: string,
+  tokenName: string
+) {
+  return await tokenClient.getTokenData(address, collection, tokenName);
+}
+
+export async function fetchTokens(
+  address: MaybeHexString = "0x7f58672cb3892c7942a89da828e3613a99015f6096209c96816a2a97ba65053d"
+) {
+  return await aptosClient.getEventsByEventHandle(
+    address,
+    "0x3::token::TokenStore",
+    "deposit_events"
+  );
+}
+
+export async function fetchCollections(address: MaybeHexString) {
+  if (address) {
+    // const resource = await aptosClient.getAccountResource(
+    //   address,
+    //   "0x3::token::Collections"
+    // );
+    return await aptosClient.getEventsByEventHandle(
+      address,
+      "0x3::token::Collections",
+      "create_collection_events"
+    );
+  }
+  return null;
 }
 
 export async function create_collection(
@@ -80,5 +114,6 @@ export async function create_token(
       ]
     )
   );
+  console.log("create token");
   return executeTransactionWithPayload(account, txPayload);
 }

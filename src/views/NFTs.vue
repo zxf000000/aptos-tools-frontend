@@ -40,6 +40,7 @@
         </v-col>
       </v-row>
     </v-card>
+    <create-token> </create-token>
   </v-container>
 </template>
 
@@ -48,11 +49,18 @@ import VueJsonPretty from "vue-json-pretty";
 import { defineComponent, Ref, ref } from "vue";
 import { useStore } from "vuex";
 import { key } from "@/store";
-import { create_collection } from "@/utils/TokenRepository";
+import {
+  create_collection,
+  fetchCollections,
+  fetchToken,
+  fetchTokens,
+} from "@/utils/TokenRepository";
 import { Transaction } from "aptos/dist/generated";
+import CreateToken from "@/components/CreateToken.vue";
 export default defineComponent({
   name: "NFTs",
   components: {
+    CreateToken,
     VueJsonPretty,
   },
   setup() {
@@ -82,6 +90,26 @@ export default defineComponent({
         }
       }
     };
+
+    fetchTokens(
+      "0x5da4403978effabe5ec7a09054f610bd07500acbf5e86024da9e6e42d48e22d1"
+    ).then((res) => {
+      console.log(res);
+    });
+
+    fetchCollections(
+      "0x86fe68c2060f6ae2f422fc87031137cf84cd4e8b7deae8c203867967752a2dba"
+    ).then((res) => {
+      console.log("collections ", res);
+    });
+
+    fetchToken(
+      "0x86fe68c2060f6ae2f422fc87031137cf84cd4e8b7deae8c203867967752a2dba",
+      "Topaz Kittens",
+      "Topaz Kitten 736"
+    ).then((res) => {
+      console.log("token ", res);
+    });
     return {
       collectionWaiting,
       createCollection,
