@@ -5,6 +5,7 @@ import ModulePage from "@/views/ModulePage.vue";
 import CoinPage from "@/views/CoinPage.vue";
 import { store } from "@/store";
 import AccountFund from "@/views/AccountFund.vue";
+import NFTs from "@/views/NFTs.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -26,6 +27,11 @@ const routes: Array<RouteRecordRaw> = [
         path: "fund",
         name: "FundPage",
         component: AccountFund,
+      },
+      {
+        path: "nft",
+        name: "NFTPage",
+        component: NFTs,
       },
     ],
   },

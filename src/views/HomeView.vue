@@ -15,6 +15,7 @@
         <v-list-item to="/fund"> Fund </v-list-item>
         <v-list-item to="/module"> Module </v-list-item>
         <v-list-item to="/coin"> Coin </v-list-item>
+        <v-list-item to="/nft"> NFT </v-list-item>
       </v-list>
     </v-navigation-drawer>
     <v-main>

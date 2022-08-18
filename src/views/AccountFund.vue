@@ -1,9 +1,7 @@
 <template>
   <v-container fluid>
     <h1>FUND</h1>
-    <v-text-field label="Address"
-                  v-model="address"
-    ></v-text-field>
+    <v-text-field label="Address" v-model="address"></v-text-field>
     <v-btn @click="fund" :disabled="address.length === 0"> FUND </v-btn>
   </v-container>
 </template>
@@ -16,7 +14,10 @@ export default defineComponent({
   setup() {
     const address = ref("");
     const fund = async () => {
-      const res = await faucetClient.fundAccount(address.value, 1000000000000000);
+      const res = await faucetClient.fundAccount(
+        address.value,
+        1000000000000000
+      );
       console.log(res);
     };
     return {

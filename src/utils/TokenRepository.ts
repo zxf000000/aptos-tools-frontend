@@ -16,7 +16,7 @@ function serializeVectorBool(vecBool: boolean[]) {
   return serializer.getBytes();
 }
 
-export async function createCollection(
+export async function create_collection(
   account: AptosAccount,
   name: string,
   description: string,

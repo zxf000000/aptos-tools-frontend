@@ -1,4 +1,4 @@
-import { aptosClient, faucetClient, NODE_URL } from "@/utils/client";
+import { aptosClient, faucetClient } from "@/utils/client";
 import {
   AptosAccount,
   AptosClient,
@@ -8,25 +8,18 @@ import {
 } from "aptos";
 import { Buffer } from "buffer";
 import {
-  bcsSerializeBool,
   bcsSerializeStr,
-  bcsSerializeU8,
   bcsSerializeUint64,
   Serializer,
 } from "aptos/dist/transaction_builder/bcs";
-import axios from "axios";
 import { Transaction } from "aptos/dist/generated";
-import { Transition } from "vue";
-import { StructTag } from "aptos/dist/transaction_builder/aptos_types";
 
 export async function fetchUserBalance(address: MaybeHexString) {
   if (address) {
-    const resource = await aptosClient.getAccountResource(address, {
-      address: "0x1",
-      module: "coin",
-      name: "CoinStore",
-      generic_type_params: ["0x1::aptos_coin::AptosCoin"],
-    });
+    const resource = await aptosClient.getAccountResource(
+      address,
+      "0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>"
+    );
     if (resource == null) {
       return null;
     }
@@ -181,18 +174,18 @@ export async function executeTransactionWithPayload(
   );
   const bcsTxn = AptosClient.generateBCSTransaction(accountFrom, rawTxn);
   const txRes = await aptosClient.submitSignedBCSTransaction(bcsTxn);
-  // await aptosClient.waitForTransaction(txRes.hash);
+  return await aptosClient.waitForTransactionWithResult(txRes.hash);
   // console.log("complete");
-  return await new Promise((resolve) => {
-    setTimeout(() => {
-      axios
-        .request({
-          method: "GET",
-          url: NODE_URL + "/transactions/" + txRes.hash,
-        })
-        .then((res) => {
-          resolve(res.data as Transaction);
-        });
-    }, 2000);
-  });
+  // return await new Promise((resolve) => {
+  //   setTimeout(() => {
+  //     axios
+  //       .request({
+  //         method: "GET",
+  //         url: NODE_URL + "/transactions/" + txRes.hash,
+  //       })
+  //       .then((res) => {
+  //         resolve(res.data as Transaction);
+  //       });
+  //   }, 2000);
+  // });
 }
