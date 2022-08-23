@@ -1,9 +1,9 @@
 <template>
-  <v-container fluid>
+  <div fluid>
     <h1>FUND</h1>
-    <v-text-field label="Address" v-model="address"></v-text-field>
-    <v-btn @click="fund" :disabled="address.length === 0"> FUND </v-btn>
-  </v-container>
+    <a-input label="Address" v-model="address"></a-input>
+    <a-button @click="fund" :disabled="address.length === 0"> FUND </a-button>
+  </div>
 </template>
 
 <script lang="ts">

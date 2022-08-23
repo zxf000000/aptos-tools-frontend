@@ -2,45 +2,42 @@
   <v-container fluid>
     <v-card>
       <v-card-title> Create collection </v-card-title>
-      <v-row>
-        <v-col cols="8">
+      <a-row>
+        <a-col cols="8">
           <v-card-item>
-            <v-text-field hide-details label="Name" v-model="collectionName">
-            </v-text-field>
-            <v-text-field
-              hide-details
-              label="Description"
-              v-model="collectionDesc"
-            >
-            </v-text-field>
-            <v-text-field hide-details label="Uri" v-model="collectionUri">
-            </v-text-field>
-            <v-text-field
+            <a-input hide-details label="Name" v-model="collectionName">
+            </a-input>
+            <a-input hide-details label="Description" v-model="collectionDesc">
+            </a-input>
+            <a-input hide-details label="Uri" v-model="collectionUri">
+            </a-input>
+            <a-input
               type="number"
               hide-details
               label="Maximum"
               v-model="collectionMaxNum"
             >
-            </v-text-field>
+            </a-input>
             <vue-json-pretty :data="collectionRes"> </vue-json-pretty>
-            <v-btn
+            <a-button
               @click="createCollection"
               :loading="collectionWaiting"
               class="mt-6"
               color="primary"
             >
               Create
-            </v-btn>
+            </a-button>
           </v-card-item>
-        </v-col>
-        <v-col cols="4">
+        </a-col>
+        <a-col cols="4">
           <v-card-item>
             <v-img max-height="300" :src="collectionUri"></v-img>
           </v-card-item>
-        </v-col>
-      </v-row>
+        </a-col>
+      </a-row>
     </v-card>
     <create-token> </create-token>
+    <modify-token></modify-token>
   </v-container>
 </template>
 
@@ -57,9 +54,11 @@ import {
 } from "@/utils/TokenRepository";
 import { Transaction } from "aptos/dist/generated";
 import CreateToken from "@/components/CreateToken.vue";
+import ModifyToken from "@/components/ModifyToken.vue";
 export default defineComponent({
   name: "NFTs",
   components: {
+    ModifyToken,
     CreateToken,
     VueJsonPretty,
   },
@@ -91,25 +90,25 @@ export default defineComponent({
       }
     };
 
-    fetchTokens(
-      "0x5da4403978effabe5ec7a09054f610bd07500acbf5e86024da9e6e42d48e22d1"
-    ).then((res) => {
-      console.log(res);
-    });
-
-    fetchCollections(
-      "0x86fe68c2060f6ae2f422fc87031137cf84cd4e8b7deae8c203867967752a2dba"
-    ).then((res) => {
-      console.log("collections ", res);
-    });
-
-    fetchToken(
-      "0x86fe68c2060f6ae2f422fc87031137cf84cd4e8b7deae8c203867967752a2dba",
-      "Topaz Kittens",
-      "Topaz Kitten 736"
-    ).then((res) => {
-      console.log("token ", res);
-    });
+    // fetchTokens(
+    //   "0x5da4403978effabe5ec7a09054f610bd07500acbf5e86024da9e6e42d48e22d1"
+    // ).then((res) => {
+    //   console.log(res);
+    // });
+    //
+    // fetchCollections(
+    //   "0x86fe68c2060f6ae2f422fc87031137cf84cd4e8b7deae8c203867967752a2dba"
+    // ).then((res) => {
+    //   console.log("collections ", res);
+    // });
+    //
+    // fetchToken(
+    //   "0x86fe68c2060f6ae2f422fc87031137cf84cd4e8b7deae8c203867967752a2dba",
+    //   "Topaz Kittens",
+    //   "Topaz Kitten 736"
+    // ).then((res) => {
+    //   console.log("token ", res);
+    // });
     return {
       collectionWaiting,
       createCollection,

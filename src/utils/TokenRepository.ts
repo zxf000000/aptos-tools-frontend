@@ -1,4 +1,4 @@
-import { AptosAccount, MaybeHexString, TxnBuilderTypes } from "aptos";
+import { AptosAccount, MaybeHexString, TxnBuilderTypes, Types } from "aptos";
 import {
   bcsSerializeStr,
   bcsSerializeUint64,
@@ -37,15 +37,28 @@ export async function fetchTokens(
 
 export async function fetchCollections(address: MaybeHexString) {
   if (address) {
-    // const resource = await aptosClient.getAccountResource(
-    //   address,
-    //   "0x3::token::Collections"
-    // );
-    return await aptosClient.getEventsByEventHandle(
-      address,
-      "0x3::token::Collections",
-      "create_collection_events"
-    );
+    const [resource, collectionEvents] = await Promise.all([
+      await aptosClient.getAccountResource(address, "0x3::token::Collections"),
+      aptosClient.getEventsByEventHandle(
+        address,
+        "0x3::token::Collections",
+        "create_collection_events"
+      ),
+    ]);
+    const tableHandle = (resource.data as any).collection_data.handle;
+    const fetchArr: Promise<any>[] = [];
+    collectionEvents.forEach((event) => {
+      fetchArr.push(
+        aptosClient.getTableItem(tableHandle, {
+          key_type: "0x1::string::String",
+          value_type: "0x3::token::CollectionData",
+          key: (event.data as any).collection_name,
+        })
+      );
+    });
+    const collections = await Promise.all(fetchArr);
+    console.log(collections, "collectionssss");
+    return collections;
   }
   return null;
 }
@@ -57,8 +70,8 @@ export async function create_collection(
   uri: string,
   maximum: number
 ) {
-  const txPayload = new TxnBuilderTypes.TransactionPayloadScriptFunction(
-    TxnBuilderTypes.ScriptFunction.natural(
+  const txPayload = new TxnBuilderTypes.TransactionPayloadEntryFunction(
+    TxnBuilderTypes.EntryFunction.natural(
       "0x3::token",
       "create_collection_script",
       [],
@@ -92,8 +105,8 @@ export async function create_token(
 ) {
   const serializer = new Serializer();
   serializer.serializeU32AsUleb128(0);
-  const txPayload = new TxnBuilderTypes.TransactionPayloadScriptFunction(
-    TxnBuilderTypes.ScriptFunction.natural(
+  const txPayload = new TxnBuilderTypes.TransactionPayloadEntryFunction(
+    TxnBuilderTypes.EntryFunction.natural(
       "0x3::token",
       "create_token_script",
       [],
@@ -107,7 +120,7 @@ export async function create_token(
         bcsToBytes(TxnBuilderTypes.AccountAddress.fromHex(account.address())),
         bcsSerializeUint64(royalty_points_denominator),
         bcsSerializeUint64(royalty_points_numerator),
-        serializeVectorBool([false, false, false, false, false]),
+        serializeVectorBool([true, true, true, true, true]),
         serializer.getBytes(),
         serializer.getBytes(),
         serializer.getBytes(),

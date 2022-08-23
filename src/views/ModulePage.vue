@@ -1,90 +1,78 @@
 <template>
-  <v-container fluid>
+  <div>
     <h2>Module</h2>
-    <v-card class="mt-6 elevation-3 pa-4">
-      <v-card-title> Publish </v-card-title>
-      <v-card-item>
-        Address: {{ $store.state.account?.address() }}
-      </v-card-item>
-      <v-card-item>
-        <v-file-input
-          hide-details
-          v-model="buildFile"
-          density="compact"
-          label="module build file(.mv)"
-        >
-        </v-file-input>
-      </v-card-item>
-      <v-card-actions>
-        <v-btn
+    <a-card class="mt-6 elevation-3 pa-4">
+      <template #title> Publish </template>
+      Address: {{ $store.state.account?.address() }}
+      <a-input
+        v-model:value="buildFile"
+        type="file"
+        placeholder="module build file(.mv)"
+      >
+      </a-input>
+      <template #actions>
+        <a-button
           :loading="loading"
           @click="tapPublish"
           class="mt-4"
           color="primary"
         >
           Publish
-        </v-btn>
-      </v-card-actions>
-      <v-divider> </v-divider>
-      <v-card-item>
-        <h5>Tx Hex:</h5>
+        </a-button>
+      </template>
+      <h5>Tx Hex:</h5>
+      <a
+        target="_blank"
+        :href="'https://explorer.devnet.aptos.dev/txn/' + publishTxHex"
+      >
+        <span>{{ publishTxHex }}</span>
+      </a>
+      <vue-json-pretty :data="publishResult"></vue-json-pretty>
+    </a-card>
+    <a-card elevation="4" class="mt-6">
+      <template #title> Execute Function </template>
+      <a-input
+        label="Module name"
+        density="compact"
+        class="mt-6"
+        hide-details
+        v-model="moduleName"
+      ></a-input>
+      <a-input
+        density="compact"
+        hide-details
+        class="mt-6"
+        label="Function name"
+        v-model="funName"
+      >
+      </a-input>
+      <a-input
+        density="compact"
+        hide-details
+        class="mt-6"
+        label="Function args (split by `,`)"
+        v-model="funcArgs"
+      >
+      </a-input>
+      <a-button
+        :loading="exeFuncLoading"
+        class="mt-6"
+        color="primary"
+        @click="executeFunc"
+      >
+        Execute
+      </a-button>
+      <span>
+        Result:
         <a
           target="_blank"
-          :href="'https://explorer.devnet.aptos.dev/txn/' + publishTxHex"
+          :href="'https://explorer.devnet.aptos.dev/txn/' + funcRes"
         >
-          <span>{{ publishTxHex }}</span>
+          {{ funcRes }}
         </a>
-        <vue-json-pretty :data="publishResult"></vue-json-pretty>
-      </v-card-item>
-    </v-card>
-    <v-card elevation="4" class="mt-6">
-      <v-card-title> Execute Function </v-card-title>
-      <v-card-text>
-        <v-text-field
-          label="Module name"
-          density="compact"
-          class="mt-6"
-          hide-details
-          v-model="moduleName"
-        ></v-text-field>
-        <v-text-field
-          density="compact"
-          hide-details
-          class="mt-6"
-          label="Function name"
-          v-model="funName"
-        >
-        </v-text-field>
-        <v-text-field
-          density="compact"
-          hide-details
-          class="mt-6"
-          label="Function args (split by `,`)"
-          v-model="funcArgs"
-        >
-        </v-text-field>
-        <v-btn
-          :loading="exeFuncLoading"
-          class="mt-6"
-          color="primary"
-          @click="executeFunc"
-        >
-          Execute
-        </v-btn>
-      </v-card-text>
-      <v-card-text>
-        <span>
-          Result:
-          <a
-            target="_blank"
-            :href="'https://explorer.devnet.aptos.dev/txn/' + funcRes"
-          >
-            {{ funcRes }}
-          </a>
-        </span>
-      </v-card-text>
-    </v-card>
-  </v-container>
+      </span>
+    </a-card>
+  </div>
 </template>
 
 <script lang="ts">

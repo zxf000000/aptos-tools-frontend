@@ -1,43 +1,41 @@
 <template>
-  <v-container
+  <div
     fluid
     class="d-flex flex-column align-center justify-center account-container"
   >
     <h2>Account</h2>
-    <v-sheet v-if="account" class="d-flex flex-column align-start pa-4">
+    <div v-if="account" class="d-flex flex-column align-start pa-4">
       <h4 class="mt-6">Current Address</h4>
-      <v-card min-width="400" class="mt-6">
-        <v-card-text>
-          {{ address }}
-        </v-card-text>
-        <v-card-text> Balance: {{ userBalance }} </v-card-text>
-      </v-card>
-      <v-row class="mt-6 pa-0">
-        <v-col>
-          <v-btn @click="faucet" color="primary"> Faucet </v-btn>
-        </v-col>
-        <v-col>
-          <v-btn @click="clear" color="error">Clear</v-btn>
-        </v-col>
-      </v-row>
-    </v-sheet>
+      <a-card min-width="400" class="mt-6">
+        {{ address }}
+        Balance: {{ userBalance }}
+      </a-card>
+      <a-row class="mt-6 pa-0">
+        <a-col :span="8">
+          <a-button @click="faucet" color="primary"> Faucet </a-button>
+        </a-col>
+        <a-col>
+          <a-button @click="clear" color="error">Clear</a-button>
+        </a-col>
+      </a-row>
+    </div>
 
-    <v-sheet width="400" border class="pa-4 mt-6" v-else>
-      <v-textarea
+    <div width="400" border class="pa-4 mt-6" v-else>
+      <a-textarea
         placeholder="Input your private key "
         v-model="privateKey"
-      ></v-textarea>
-      <v-btn @click="importAccount" color="primary"> Import </v-btn>
-      <v-btn
+      ></a-textarea>
+      <a-button @click="importAccount" color="primary"> Import </a-button>
+      <a-button
         @click="createAccount"
         class="ml-6"
         color="primary"
         variant="outlined"
       >
         Generate
-      </v-btn>
-    </v-sheet>
-  </v-container>
+      </a-button>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">

@@ -75,7 +75,7 @@ export async function initializeCoin(
   console.log(typeTag);
   const serializer = new Serializer();
   serializer.serializeBool(false);
-  const scriptFunc = TxnBuilderTypes.ScriptFunction.natural(
+  const scriptFunc = TxnBuilderTypes.EntryFunction.natural(
     "0x1::managed_coin",
     "initialize",
     [typeTag],
@@ -86,7 +86,7 @@ export async function initializeCoin(
       serializer.getBytes(),
     ]
   );
-  const payload = new TxnBuilderTypes.TransactionPayloadScriptFunction(
+  const payload = new TxnBuilderTypes.TransactionPayloadEntryFunction(
     scriptFunc
   );
   return await executeTransactionWithPayload(account, payload);
@@ -118,8 +118,8 @@ export async function executeFunction(
     return bcsSerializeStr(arg);
   });
   const scriptFunctionPayload =
-    new TxnBuilderTypes.TransactionPayloadScriptFunction(
-      TxnBuilderTypes.ScriptFunction.natural(
+    new TxnBuilderTypes.TransactionPayloadEntryFunction(
+      TxnBuilderTypes.EntryFunction.natural(
         `${account.address()}::${moduleName}`,
         funName,
         [],

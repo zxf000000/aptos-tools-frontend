@@ -1,122 +1,91 @@
 <template>
   <v-card class="mt-6 create-card">
-    <v-row>
-      <v-col cols="8">
+    <a-row>
+      <a-col cols="8">
         <v-card-title>
           Create Token
-          <v-btn icon size="20" @click="tapFetch">
+          <a-button icon size="20" @click="tapFetch">
             <v-icon>mdi-refresh</v-icon>
-          </v-btn>
+          </a-button>
         </v-card-title>
         <!--    <v-card-item>-->
         <v-card-item>
-          <!--          <v-autocomplete-->
-          <!--            label="collection"-->
-          <!--            item-value="data.collection_name"-->
-          <!--            :items="collections"-->
-          <!--            item-title="data.collection_name"-->
+          <collection-selection></collection-selection>
+          <!--          <v-item-group-->
           <!--            v-model="selectedCollection"-->
-          <!--            filled-->
-          <!--            chips-->
-          <!--            closable-chips-->
-          <!--            color="blue-grey-lighten-2"-->
-          <!--            hide-details-->
+          <!--            selected-class="selected-item"-->
           <!--          >-->
-          <!--            <template v-slot:chip="{ props, item }">-->
-          <!--              <v-chip-->
-          <!--                v-bind="props"-->
-          <!--                :prepend-avatar="item.raw.data.uri"-->
-          <!--                :text="item.raw.data.collection_name"-->
-          <!--              ></v-chip>-->
-          <!--            </template>-->
-          <!--            <template v-slot:item="{ props, item }">-->
-          <!--              <v-list-item-->
-          <!--                v-bind="props"-->
-          <!--                :prepend-avatar="item.raw.data.uri"-->
-          <!--                :title="item.raw.data.collection_name"-->
-          <!--              ></v-list-item>-->
-          <!--            </template>-->
-          <!--          </v-autocomplete>-->
-          <v-item-group
-            v-model="selectedCollection"
-            selected-class="selected-item"
-          >
-            <v-row no-gutters>
-              <v-col v-for="(item, index) in collections" :key="index">
-                <v-item v-slot="{ selectedClass, toggle }">
-                  <v-card @click="toggle">
-                    <div :class="[selectedClass]" class="collection-item">
-                      <v-img
-                        cover
-                        :aspect-ratio="1"
-                        max-width="100px"
-                        max-height="100px"
-                        :src="item.data.uri"
-                      >
-                      </v-img>
-                      <p class="mt-4">
-                        {{ item.data.collection_name }}
-                      </p>
-                    </div>
-                  </v-card>
-                </v-item>
-              </v-col>
-            </v-row>
-          </v-item-group>
-          <v-text-field label="token name" v-model="tokenName" hide-details>
-          </v-text-field>
-          <v-text-field
-            label="token description"
-            v-model="tokenDesc"
-            hide-details
-          >
-          </v-text-field>
-          <v-text-field label="token uri" v-model="tokenUri" hide-details>
-          </v-text-field>
-          <v-text-field
+          <!--            <a-row no-gutters>-->
+          <!--              <a-col v-for="(item, index) in collections" :key="index">-->
+          <!--                <v-item v-slot="{ selectedClass, toggle }">-->
+          <!--                  <v-card @click="toggle">-->
+          <!--                    <div :class="[selectedClass]" class="collection-item">-->
+          <!--                      <v-img-->
+          <!--                        cover-->
+          <!--                        :aspect-ratio="1"-->
+          <!--                        max-width="100px"-->
+          <!--                        max-height="100px"-->
+          <!--                        :src="item.data.uri"-->
+          <!--                      >-->
+          <!--                      </v-img>-->
+          <!--                      <p class="mt-4">-->
+          <!--                        {{ item.data.collection_name }}-->
+          <!--                      </p>-->
+          <!--                    </div>-->
+          <!--                  </v-card>-->
+          <!--                </v-item>-->
+          <!--              </a-col>-->
+          <!--            </a-row>-->
+          <!--          </v-item-group>-->
+          <a-input label="token name" v-model="tokenName" hide-details>
+          </a-input>
+          <a-input label="token description" v-model="tokenDesc" hide-details>
+          </a-input>
+          <a-input label="token uri" v-model="tokenUri" hide-details> </a-input>
+          <a-input
             label="token balance"
             v-model="tokenBalance"
             type="number"
             hide-details
           >
-          </v-text-field>
-          <v-text-field
+          </a-input>
+          <a-input
             label="token maximum"
             v-model="tokenMaximum"
             type="number"
             hide-details
           >
-          </v-text-field>
-          <v-text-field
+          </a-input>
+          <a-input
             label="royalty denominator"
             v-model="royaltyDenominator"
             type="number"
             hide-details
           >
-          </v-text-field>
-          <v-text-field
+          </a-input>
+          <a-input
             label="royalty numerator"
             v-model="royaltyNumerator"
             type="number"
             hide-details
           >
-          </v-text-field>
+          </a-input>
           Result:
           <vue-json-pretty :data="tokenResult"> </vue-json-pretty>
-          <v-btn
+          <a-button
             :loading="creatingToken"
             color="primary"
             class="mt-6"
             @click="tapCreate"
           >
             CREATE
-          </v-btn>
+          </a-button>
         </v-card-item>
-      </v-col>
-      <v-col col="4">
+      </a-col>
+      <a-col col="4">
         <v-img :src="tokenUri" max-height="300"> </v-img>
-      </v-col>
-    </v-row>
+      </a-col>
+    </a-row>
   </v-card>
 </template>
 
@@ -127,10 +96,12 @@ import { key } from "@/store";
 import { create_token, fetchCollections } from "@/utils/TokenRepository";
 import { Event, Transaction } from "aptos/dist/generated";
 import VueJsonPretty from "vue-json-pretty";
+import CollectionSelection from "@/components/CollectionSelection.vue";
 
 export default defineComponent({
   name: "CreateToken",
   components: {
+    CollectionSelection,
     VueJsonPretty,
   },
   setup() {
