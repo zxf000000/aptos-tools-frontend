@@ -13,7 +13,9 @@
     <a-layout>
       <a-layout-header class="app-bar">
         <div class="header-content">
-          <h1 style="color: white">Aptos Tools</h1>
+          <a-typography-title :level="3" style="color: white; margin: 0"
+            >Aptos Tools</a-typography-title
+          >
           <span class="mr-4"> Balance: {{ userBalance }} </span>
           <a-button
             :loading="funding"
@@ -24,7 +26,9 @@
             FUND
           </a-button>
           <a-button color="error" class="mr-4"> CLEAR </a-button>
-          <h6 style="color: white">address:: {{ address }}</h6>
+          <a-typography style="color: white"
+            >address:: {{ address }}</a-typography
+          >
         </div>
       </a-layout-header>
       <a-layout-content>

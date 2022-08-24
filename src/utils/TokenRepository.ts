@@ -26,19 +26,68 @@ export async function fetchToken(
 }
 
 export async function fetchTokens(
-  address: MaybeHexString = "0x7f58672cb3892c7942a89da828e3613a99015f6096209c96816a2a97ba65053d"
-) {
-  return await aptosClient.getEventsByEventHandle(
-    address,
-    "0x3::token::TokenStore",
-    "deposit_events"
-  );
+  address: MaybeHexString,
+  collection: string
+): Promise<any[]> {
+  const [resources, tokens, collections] = await Promise.all([
+    aptosClient.getAccountResource(address, "0x3::token::TokenStore"),
+    aptosClient.getEventsByEventHandle(
+      address,
+      "0x3::token::TokenStore",
+      "deposit_events"
+    ),
+    aptosClient.getAccountResource(address, "0x3::token::Collections"),
+  ]);
+  const arr: Promise<any>[] = [];
+  const tableHandle = (resources.data as any).tokens.handle;
+  const tokenDataTableHandle = (collections.data as any).token_data.handle;
+  console.log(collections, tokenDataTableHandle);
+  tokens
+    .filter((tokenEvent) => {
+      return tokenEvent.data.id.token_data_id.collection === collection;
+    })
+    .forEach((tokenEvent) => {
+      arr.push(
+        Promise.allSettled([
+          aptosClient.getTableItem(tableHandle, {
+            key_type: "0x3::token::TokenId",
+            value_type: "0x3::token::Token",
+            key: tokenEvent.data.id,
+          }),
+          aptosClient.getTableItem(tokenDataTableHandle, {
+            key_type: "0x3::token::TokenDataId",
+            value_type: "0x3::token::TokenData",
+            key: tokenEvent.data.id.token_data_id,
+          }),
+        ])
+      );
+    });
+  const results = await Promise.allSettled(arr);
+
+  return results
+    .filter((result) => {
+      console.log(result);
+      if (result.status === "fulfilled") {
+        const value = (result as PromiseFulfilledResult<any>).value;
+        return (
+          value[0].status === "fulfilled" && value[1].status === "fulfilled"
+        );
+      }
+      return false;
+    })
+    .map((result) => {
+      const value = (result as PromiseFulfilledResult<any>).value;
+      return {
+        token: value[0].value,
+        tokenData: value[1].value,
+      };
+    });
 }
 
 export async function fetchCollections(address: MaybeHexString) {
   if (address) {
     const [resource, collectionEvents] = await Promise.all([
-      await aptosClient.getAccountResource(address, "0x3::token::Collections"),
+      aptosClient.getAccountResource(address, "0x3::token::Collections"),
       aptosClient.getEventsByEventHandle(
         address,
         "0x3::token::Collections",

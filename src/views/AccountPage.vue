@@ -1,8 +1,5 @@
 <template>
-  <div
-    fluid
-    class="d-flex flex-column align-center justify-center account-container"
-  >
+  <div class="account-container">
     <h2>Account</h2>
     <div v-if="account" class="d-flex flex-column align-start pa-4">
       <h4 class="mt-6">Current Address</h4>
@@ -149,5 +146,8 @@ export default defineComponent({
 <style scoped lang="scss">
 .account-container {
   height: calc(100vh - 64px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

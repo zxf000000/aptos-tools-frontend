@@ -1,44 +1,37 @@
 <template>
-  <v-container fluid>
-    <v-card>
-      <v-card-title> Create collection </v-card-title>
-      <a-row>
+  <div style="padding: 0 0 40px 0">
+    <a-card>
+      <template #title> Create collection </template>
+      <a-row :gutter="20">
         <a-col cols="8">
-          <v-card-item>
-            <a-input hide-details label="Name" v-model="collectionName">
-            </a-input>
-            <a-input hide-details label="Description" v-model="collectionDesc">
-            </a-input>
-            <a-input hide-details label="Uri" v-model="collectionUri">
-            </a-input>
-            <a-input
-              type="number"
-              hide-details
-              label="Maximum"
-              v-model="collectionMaxNum"
-            >
-            </a-input>
-            <vue-json-pretty :data="collectionRes"> </vue-json-pretty>
-            <a-button
-              @click="createCollection"
-              :loading="collectionWaiting"
-              class="mt-6"
-              color="primary"
-            >
-              Create
-            </a-button>
-          </v-card-item>
+          <a-input placeholder="Name" v-model:value="collectionName"> </a-input>
+          <a-input placeholder="Description" v-model:value="collectionDesc">
+          </a-input>
+          <a-input placeholder="Uri" v-model:value="collectionUri"></a-input>
+          <a-input
+            type="number"
+            placeholder="Maximum"
+            v-model:value="collectionMaxNum"
+          >
+          </a-input>
         </a-col>
-        <a-col cols="4">
-          <v-card-item>
-            <v-img max-height="300" :src="collectionUri"></v-img>
-          </v-card-item>
+        <a-col :span="4">
+          <a-image :width="300" :src="collectionUri"></a-image>
         </a-col>
       </a-row>
-    </v-card>
+      <vue-json-pretty :data="collectionRes"> </vue-json-pretty>
+      <a-button
+        @click="createCollection"
+        :loading="collectionWaiting"
+        class="mt-6"
+        color="primary"
+      >
+        Create
+      </a-button>
+    </a-card>
     <create-token> </create-token>
     <modify-token></modify-token>
-  </v-container>
+  </div>
 </template>
 
 <script lang="ts">
